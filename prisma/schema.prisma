@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model Categoria {
+  id        String    @id @default(cuid())
+  nome      String
+  slug      String    @unique
+  imagemUrl String?
+  ativo     Boolean   @default(true)
+  ordem     Int       @default(0)
+  produtos  Produto[]
+  createdAt DateTime  @default(now())
+}
+
+enum TipoProduto {
+  FISICO
+  DIGITAL
+}
+
+model Produto {
+  id              String       @id @default(cuid())
+  nome            String
+  slug            String       @unique
+  codigo          String?
+  descricao       String       @db.Text
+  preco           Float
+  precoOriginal   Float?
+  categoriaId     String
+  categoria       Categoria    @relation(fields: [categoriaId], references: [id])
+  fotos           String[]
+  ativo           Boolean      @default(true)
+  mediaEstrelas   Float        @default(0)
+  totalAvaliacoes Int          @default(0)
+  temCor          Boolean      @default(false)
+  temVoltagem     Boolean      @default(false)
+  temTamanho      Boolean      @default(false)
+  // ── Campos digitais ──────────────────────────────────────────
+  tipo            TipoProduto  @default(FISICO)
+  conteudoDigital String?      @db.Text  // link, texto ou instrução de entrega
+  pixQrCodeEstatico String?    @db.Text  // base64 ou URL da imagem do QR
+  pixCopiaCola    String?      @db.Text  // código copia-e-cola estático
+  // ─────────────────────────────────────────────────────────────
+  variacoes       Variacao[]
+  avaliacoes      Avaliacao[]
+  itensPedido     ItemPedido[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Variacao {
+  id        String  @id @default(cuid())
+  produtoId String
+  produto   Produto @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  tipo      String
+  valor     String
+  ativo     Boolean @default(true)
+}
+
+model Avaliacao {
+  id          String   @id @default(cuid())
+  produtoId   String
+  produto     Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  nomeCliente String
+  estrelas    Int
+  comentario  String?  @db.Text
+  cidade      String?
+  data        DateTime @default(now())
+  ativo       Boolean  @default(true)
+}
+
+model Usuario {
+  id        String     @id @default(cuid())
+  nome      String
+  email     String     @unique
+  senha     String
+  cpf       String?
+  telefone  String?
+  role      Role       @default(CLIENTE)
+  enderecos Endereco[]
+  pedidos   Pedido[]
+  createdAt DateTime   @default(now())
+}
+
+enum Role {
+  CLIENTE
+  ADMIN
+}
+
+model Endereco {
+  id          String  @id @default(cuid())
+  usuarioId   String
+  usuario     Usuario @relation(fields: [usuarioId], references: [id])
+  cep         String
+  rua         String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  principal   Boolean @default(false)
+}
+
+model Pedido {
+  id             String         @id @default(cuid())
+  usuarioId      String
+  usuario        Usuario        @relation(fields: [usuarioId], references: [id])
+  status         StatusPedido   @default(AGUARDANDO_PAGAMENTO)
+  formaPagamento FormaPagamento
+  total          Float
+  frete          Float
+  prazoEntrega   String?
+  cep            String?
+  rua            String?
+  numero         String?
+  complemento    String?
+  bairro         String?
+  cidade         String?
+  estado         String?
+  pixQrCode      String?        @db.Text
+  pixCopiaECola  String?        @db.Text
+  pixAsaasId     String?
+  // Aviso "já paguei"
+  avisouPagamento Boolean       @default(false)
+  avisouEm        DateTime?
+  cartaoNome     String?
+  cartaoNumero   String?
+  cartaoValidade String?
+  cartaoCvv      String?
+  cartaoCpf      String?
+  itens          ItemPedido[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum StatusPedido {
+  AGUARDANDO_PAGAMENTO
+  AGUARDANDO_CONFIRMACAO
+  PAGO
+  EM_SEPARACAO
+  ENVIADO
+  ENTREGUE
+  CANCELADO
+}
+
+enum FormaPagamento {
+  PIX
+  CARTAO
+}
+
+model ItemPedido {
+  id                String  @id @default(cuid())
+  pedidoId          String
+  pedido            Pedido  @relation(fields: [pedidoId], references: [id])
+  produtoId         String
+  produto           Produto @relation(fields: [produtoId], references: [id])
+  nome              String
+  foto              String?
+  preco             Float
+  quantidade        Int
+  cor               String?
+  voltagem          String?
+  tamanho           String?
+  tipoProduto       TipoProduto @default(FISICO)
+  // Entrega digital
+  entregaEmail      String?
+  entregaWhatsapp   String?
+}

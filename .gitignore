@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.vercel/
+.env
+.env.*
+!.env.example
+public/uploads/
+*.sql
+*.zip
+*.log
+docker-compose.yml
+nginx.conf
+ecommerce/
