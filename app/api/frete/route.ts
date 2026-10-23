@@ -52,3 +52,22 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ erro: 'Erro ao calcular frete.' }, { status: 500 })
   }
 }
+
+// POST: usado pelo checkout e pela página do produto. Todo frete é grátis.
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}))
+    const cep = String(body?.cep ?? '').replace(/\D/g, '')
+
+    if (cep.length !== 8) {
+      return NextResponse.json({ erro: 'CEP inválido.' }, { status: 400 })
+    }
+
+    return NextResponse.json({
+      opcoes: [{ opcao: 'Frete Grátis', prazo: 'Entrega em até 10 dias úteis', valor: 0 }],
+    })
+  } catch (error) {
+    console.error('[POST /api/frete]', error)
+    return NextResponse.json({ erro: 'Erro ao calcular frete.' }, { status: 500 })
+  }
+}
