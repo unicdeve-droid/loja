@@ -27,7 +27,7 @@ interface Produto {
 
 // Tamanhos exibidos nos produtos digitais quando o banco não tem variações de dimensão
 const TAMANHOS_DIGITAL_PADRAO = ['10x10', '15x15', '20x20', '25x25', '30x30']
-const FORMATOS_DIGITAL_PADRAO = ['PES', 'DEF', 'PDF']
+const FORMATOS_DIGITAL_PADRAO = ['PES', 'JEF', 'PDF']
 
 function ehDimensao(valor: string) {
   return /^\d+\s*x\s*\d+$/i.test(valor.trim())
@@ -81,9 +81,12 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
   const formatosDigitalDB = produto.variacoes.filter(
     v => v.tipo === 'formato' || (v.tipo === 'tamanho' && !ehDimensao(v.valor))
   )
-  const formatosDigital: Variacao[] = formatosDigitalDB.length > 0
+  const formatosDigitalBase: Variacao[] = formatosDigitalDB.length > 0
     ? formatosDigitalDB
     : FORMATOS_DIGITAL_PADRAO.map(valor => ({ id: `fmt-${valor}`, tipo: 'formato', valor, ativo: true }))
+  const formatosDigital: Variacao[] = formatosDigitalBase.map(v =>
+    v.valor.toUpperCase() === 'DEF' ? { ...v, valor: 'JEF' } : v
+  )
   const tamanhosDigitalDB = produto.variacoes.filter(v => v.tipo === 'tamanho' && ehDimensao(v.valor))
   const tamanhosDigital: Variacao[] = tamanhosDigitalDB.length > 0
     ? tamanhosDigitalDB
@@ -101,7 +104,7 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
     produto.variacoes.find(v => v.tipo === 'tamanho' && v.ativo)?.valor
   )
   const [formatoDigitalSel, setFormatoDigitalSel] = useState<string>('PES')
-  const [tamanhoDigitalSel, setTamanhoDigitalSel] = useState<string>('10x10')
+  const [tamanhoDigitalSel, setTamanhoDigitalSel] = useState<string>('Todos os tamanhos')
   const [quantidade,    setQuantidade]    = useState(1)
   const [cep,           setCep]           = useState('')
   const [freteLoading,  setFreteLoading]  = useState(false)
@@ -322,20 +325,19 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
                 </div>
               )}
 
-              {/* Tamanho (10x10, 15x15...) */}
+              {/* Todos os tamanhos inclusos (não selecionável) */}
               {tamanhosDigital.length > 0 && (
                 <div className="produto-variantes">
-                  <p className="variante-label">Tamanho: <strong>{tamanhoDigitalSel}</strong></p>
+                  <p className="variante-label">Todos os tamanhos inclusos:</p>
                   <div className="variante-opcoes">
                     {tamanhosDigital.map(v => (
-                      <button
+                      <span
                         key={v.id}
-                        onClick={() => v.ativo && setTamanhoDigitalSel(v.valor)}
-                        disabled={!v.ativo}
-                        className={`variante-voltagem-btn${tamanhoDigitalSel === v.valor ? ' selected' : ''}${!v.ativo ? ' indisponivel' : ''}`}
+                        className="variante-voltagem-btn selected"
+                        style={{ cursor: 'default', pointerEvents: 'none' }}
                       >
                         {v.valor}
-                      </button>
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -508,11 +510,7 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
 
         {tabAtiva === 'avaliacoes' && (
           <div className="tab-content">
-            {produto.avaliacoes.length === 0 ? (
-              <p style={{ color: '#7C8096', padding: '1rem 0' }}>
-                Ainda não há avaliações para este produto.
-              </p>
-            ) : (
+            {produto.avaliacoes.length === 0 ? null : (
               <div className="avaliacoes-lista">
                 {produto.avaliacoes.map(av => (
                   <div key={av.id} className="avaliacao-item">

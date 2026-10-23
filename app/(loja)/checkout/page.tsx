@@ -130,6 +130,11 @@ export default function CheckoutPage() {
         const d = await r.json()
         if (d.erro) { setErro(d.erro); return }
         setFreteOpcoes(d.opcoes || [])
+        if ((d.opcoes || []).length > 0) {
+          const op0 = d.opcoes[0]
+          setFreteAtivo(op0)
+          setFrete(cep.replace(/\D/g,''), op0.opcao, op0.valor)
+        }
         setFreteBuscado(true)
       } catch { setErro('Erro ao calcular frete.') }
       return

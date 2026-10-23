@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      opcoes: [{ opcao: 'Frete Grátis', prazo: 'Entrega em até 10 dias úteis', valor: 0 }],
+      opcoes: [{ opcao: 'Frete Grátis', prazo: 'Entrega em até 6 dias úteis', valor: 0 }],
     })
   } catch (error) {
     console.error('[POST /api/frete]', error)
