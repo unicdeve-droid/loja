@@ -3541,3 +3541,34 @@ body {
 .gazin-nav .categorias-btn{ background:rgba(255,255,255,.60) !important; font-weight:600; }
 .gazin-nav .categorias-btn > svg path{ stroke:var(--bb-ink); }
 /* <<< header-baby-blue <<< */
+
+/* >>> header-pearl-glass >>> */
+:root{
+  --bb-ink:#2a2d3e;
+  --bb-ink-soft:#6b6f85;
+  --bb-edge:rgba(255,255,255,.80);
+}
+.gazin-header{
+  background:
+    radial-gradient(120% 180% at 4% -40%, rgba(255,255,255,.85) 0%, rgba(255,255,255,0) 55%),
+    radial-gradient(90% 150% at 100% 140%, rgba(214,196,230,.35) 0%, rgba(214,196,230,0) 62%),
+    linear-gradient(135deg, rgba(236,224,212,.92) 0%, rgba(248,242,236,.90) 100%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  backdrop-filter:blur(20px) saturate(150%);
+  border-bottom:1px solid rgba(255,255,255,.80) !important;
+  box-shadow:0 10px 30px rgba(120,96,74,.16), inset 0 1px 0 rgba(255,255,255,.90) !important;
+}
+.gazin-header .search-bar{
+  box-shadow:0 6px 18px rgba(120,96,74,.12), inset 0 1px 0 rgba(255,255,255,.90);
+}
+.gazin-header .search-bar input::placeholder{ color:#8a8c9c !important; }
+.gazin-header .header-user-area:hover,
+.gazin-header .header-cart:hover{
+  box-shadow:0 6px 16px rgba(120,96,74,.16);
+}
+.gazin-nav{
+  background:linear-gradient(135deg, rgba(246,240,233,.94), rgba(252,249,245,.90)) !important;
+  box-shadow:0 8px 22px rgba(120,96,74,.10) !important;
+}
+.gazin-nav .gazin-nav-item:hover{ color:var(--bb-ink) !important; }
+/* <<< header-pearl-glass <<< */
