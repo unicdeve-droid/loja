@@ -111,7 +111,11 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
   const [freteLoading,  setFreteLoading]  = useState(false)
   const [freteResultado,setFreteResultado]= useState<{ opcao: string; prazo: string; valor: number }[] | null>(null)
   const [freteErro,     setFreteErro]     = useState('')
-  const [tabAtiva,      setTabAtiva]      = useState<'descricao' | 'ficha' | 'avaliacoes'>('descricao')
+  // Produtos com avaliação ESCRITA abrem direto na aba Avaliações (que passa a ser a 1ª aba)
+  const temAvaliacaoEscrita = produto.avaliacoes.some(a => !!a.comentario && a.comentario.trim() !== '')
+  const [tabAtiva,      setTabAtiva]      = useState<'descricao' | 'ficha' | 'avaliacoes'>(
+    temAvaliacaoEscrita ? 'avaliacoes' : 'descricao'
+  )
 
   const coresDisponiveis      = produto.variacoes.filter(v => v.tipo === 'cor')
   const voltagensDisponiveis  = produto.variacoes.filter(v => v.tipo === 'voltagem')
@@ -173,7 +177,9 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
   }
 
   const descricaoCurta = extrairDescricaoCurta(produto.descricao)
-  const tabs: ('descricao' | 'ficha' | 'avaliacoes')[] = ['descricao', 'ficha', 'avaliacoes']
+  const tabs: ('descricao' | 'ficha' | 'avaliacoes')[] = temAvaliacaoEscrita
+    ? ['avaliacoes', 'ficha', 'descricao']
+    : ['descricao', 'ficha', 'avaliacoes']
 
   // ── Bloco preço + quantidade + botões (usado nas duas posições) ──
   const blocoCompra = (

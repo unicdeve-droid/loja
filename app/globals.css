@@ -3608,6 +3608,31 @@ body {
 @media (prefers-reduced-motion:reduce){
   .natal-luzes i{ animation:none; opacity:.9; }
 }
+/* ── Celular (≤ 520px): guirlanda + cortinas de luzes nos cantos ── */
+.natal-mobile{ display:none; }
+.natal-mobile .nm-bulb{ fill:var(--luz,#e53935); }
+.natal-mobile .nm-glow{ fill:var(--luz,#e53935); opacity:.2; }
+.natal-mobile .nm-c0{ --luz:#e53935; }
+.natal-mobile .nm-c1{ --luz:#2fa84f; }
+.natal-mobile .nm-c2{ --luz:#ffc83d; }
+.natal-mobile .nm-b{ animation:natal-pisca-a 1.8s ease-in-out infinite; }
+.natal-mobile .nm-p1{ animation-name:natal-pisca-b; }
+.natal-mobile .nm-d1{ animation-delay:.3s; }
+.natal-mobile .nm-d2{ animation-delay:.6s; }
+.natal-mobile .nm-d3{ animation-delay:.9s; }
+.natal-mobile .nm-d4{ animation-delay:1.2s; }
+.natal-mobile .nm-star{ transform-box:fill-box; transform-origin:center; animation:natal-brilho 2.4s ease-in-out infinite; }
+@keyframes natal-brilho{ 0%,100%{ opacity:.25; transform:scale(.6) } 50%{ opacity:1; transform:scale(1.15) } }
+@media (max-width:520px){
+  .natal-luzes{ display:none; }
+  .natal-mobile{
+    display:block; position:absolute; top:0; left:0; width:100%; height:auto;
+    pointer-events:none; z-index:2; overflow:visible;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .natal-mobile .nm-b, .natal-mobile .nm-star{ animation:none; opacity:.95; }
+}
 /* <<< natal-luzes <<< */
 
 /* >>> sidebar-perolado >>> */
