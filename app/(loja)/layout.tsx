@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import Header from '@/components/loja/Header'
 import Footer from '@/components/loja/Footer'
+import MetaPixel from '@/components/loja/MetaPixel'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,7 @@ export default async function LojaLayout({ children }: { children: React.ReactNo
   const { logoUrl, siteNome } = await getSiteConfig()
   return (
     <div className="flex flex-col min-h-screen">
+      <MetaPixel />
       <Header logoUrl={logoUrl} siteNome={siteNome} />
       <main className="flex-1 bg-gazin-bg">
         {children}

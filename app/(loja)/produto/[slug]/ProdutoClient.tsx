@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
 import ProductShelf from '@/components/loja/ProductShelf'
+import { pixelTrack } from '@/lib/pixel'
 import ModalCadastroLogin from '@/components/loja/ModalCadastroLogin'
 
 interface Variacao { id: string; tipo: string; valor: string; ativo: boolean }
@@ -116,6 +117,16 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
   const [tabAtiva,      setTabAtiva]      = useState<'descricao' | 'ficha' | 'avaliacoes'>(
     temAvaliacaoEscrita ? 'avaliacoes' : 'descricao'
   )
+
+  // Pixel: ViewContent ao abrir o produto
+  useEffect(() => {
+    pixelTrack('ViewContent', {
+      content_ids: [produto.id], content_name: produto.nome, content_type: 'product',
+      content_category: produto.categoria?.nome,
+      value: produto.preco, currency: 'BRL',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [produto.id])
 
   const coresDisponiveis      = produto.variacoes.filter(v => v.tipo === 'cor')
   const voltagensDisponiveis  = produto.variacoes.filter(v => v.tipo === 'voltagem')
@@ -483,7 +494,7 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
               onClick={() => setTabAtiva(tab)}
               className={`tab-btn${tabAtiva === tab ? ' active' : ''}`}
             >
-              {tab === 'descricao'  && 'Informações do Produto'}
+              {tab === 'descricao'  && <>Informações<span className="tab-sufixo"> do Produto</span></>}
               {tab === 'ficha'      && 'Ficha Técnica'}
               {tab === 'avaliacoes' && `Avaliações (${produto.totalAvaliacoes})`}
             </button>
@@ -522,20 +533,24 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
                 {produto.avaliacoes.map(av => (
                   <div key={av.id} className="avaliacao-item">
                     <div className="avaliacao-header">
-                      <div className="avaliacao-estrelas">
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <svg key={n} viewBox="0 0 24 24" width={14} height={14}
-                            fill={n <= av.estrelas ? '#F6C90E' : 'none'}
-                            stroke="#F6C90E" strokeWidth={1}>
-                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                          </svg>
-                        ))}
+                      <div className="avaliacao-autor-linha">
+                        <span className="avaliacao-nome">{av.nomeCliente}</span>
+                        {av.cidade && <span className="avaliacao-cidade">— {av.cidade}</span>}
                       </div>
-                      <span className="avaliacao-nome">{av.nomeCliente}</span>
-                      {av.cidade && <span className="avaliacao-cidade"> — {av.cidade}</span>}
-                      <span className="avaliacao-data">
-                        {new Date(av.data).toLocaleDateString('pt-BR')}
-                      </span>
+                      <div className="avaliacao-meta">
+                        <div className="avaliacao-estrelas">
+                          {[1, 2, 3, 4, 5].map(n => (
+                            <svg key={n} viewBox="0 0 24 24" width={14} height={14}
+                              fill={n <= av.estrelas ? '#F6C90E' : 'none'}
+                              stroke="#F6C90E" strokeWidth={1}>
+                              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                            </svg>
+                          ))}
+                        </div>
+                        <span className="avaliacao-data">
+                          {new Date(av.data).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
                     </div>
                     {av.comentario && (
                       <p className="avaliacao-comentario">{av.comentario}</p>

@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react'
+import { pixelTrack } from '@/lib/pixel'
 
 export interface ItemCarrinho {
   id: string
@@ -154,7 +155,18 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
       itens: state.itens,
       totalItens, subtotal, frete, total,
       temDigital, temFisico, todoDigital,
-      adicionarItem:  (item) => dispatch({ type: 'ADICIONAR', item }),
+      adicionarItem:  (item) => {
+        dispatch({ type: 'ADICIONAR', item })
+        // Pixel: AddToCart (produto digital que já está no carrinho não conta de novo)
+        if (!state.itens.some(i => i.id === item.id) || item.tipo === 'FISICO') {
+          const qtd = item.quantidade ?? 1
+          pixelTrack('AddToCart', {
+            content_ids: [item.id], content_name: item.nome, content_type: 'product',
+            contents: [{ id: item.id, quantity: qtd }],
+            value: Number((item.preco * qtd).toFixed(2)), currency: 'BRL',
+          })
+        }
+      },
       removerItem:    (id)   => dispatch({ type: 'REMOVER', id }),
       atualizarQuantidade: (id, quantidade) => dispatch({ type: 'ATUALIZAR_QTD', id, quantidade }),
       limparCarrinho: () => dispatch({ type: 'LIMPAR' }),

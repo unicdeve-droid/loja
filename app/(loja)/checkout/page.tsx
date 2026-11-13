@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
 import { usePromocaoLancamentos } from '@/lib/usePromocao'
+import { pixelTrack } from '@/lib/pixel'
 
 function fmtBRL(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -83,6 +84,20 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (itens.length === 0 && step !== 'confirmado') router.push('/')
   }, [itens, step, router])
+
+  // Pixel: InitiateCheckout (uma vez por visita ao checkout)
+  const iniciouCheckout = useRef(false)
+  useEffect(() => {
+    if (iniciouCheckout.current || itens.length === 0 || step === 'confirmado') return
+    iniciouCheckout.current = true
+    pixelTrack('InitiateCheckout', {
+      content_ids: itens.map(i => i.id), content_type: 'product',
+      contents: itens.map(i => ({ id: i.id, quantity: i.quantidade })),
+      num_items: itens.reduce((a, i) => a + i.quantidade, 0),
+      value: Number(subtotal.toFixed(2)), currency: 'BRL',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itens, step])
 
   async function buscarCep(rawCep: string) {
     if (rawCep.length !== 8) return
@@ -203,6 +218,15 @@ export default function CheckoutPage() {
         setPixCopiaECola(pixData.pixCopiaECola || '')
         setPixAviso(pixData.aviso || '')
       }
+
+      // Pixel: Purchase (pedido criado; valor = total real gravado no pedido, já com desconto)
+      pixelTrack('Purchase', {
+        content_ids: itens.map(i => i.id), content_type: 'product',
+        contents: itens.map(i => ({ id: i.id, quantity: i.quantidade })),
+        num_items: itens.reduce((a, i) => a + i.quantidade, 0),
+        value: Number(Number(pedidoData?.total ?? (subtotal + (freteAtivo?.valor ?? 0) - descontoPromo)).toFixed(2)),
+        currency: 'BRL',
+      }, String(pid))
 
       limparCarrinho()
       setStep('confirmado')
