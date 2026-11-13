@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
 import ModalCadastroLogin from '@/components/loja/ModalCadastroLogin'
+import NatalLuzes from '@/components/loja/NatalLuzes'
 
 interface Categoria { id: string; nome: string; slug: string }
 
@@ -82,6 +83,7 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
 
       {/* ══ HEADER ══ */}
       <header className="gazin-header">
+        <NatalLuzes />
         <div className="header-inner">
 
           {/* MOBILE */}
@@ -101,12 +103,12 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
               <div className="flex items-center gap-3">
                 {/* Perfil mobile */}
                 {session ? (
-                  <Link href="/minha-conta" className="text-white">
+                  <span className="text-white" style={{ cursor: 'default' }}>
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="white" strokeLinecap="round" strokeWidth="1.8"/>
                       <circle cx="12" cy="7" r="4" stroke="white" strokeLinecap="round" strokeWidth="1.8"/>
                     </svg>
-                  </Link>
+                  </span>
                 ) : (
                   <button onClick={() => setModalAuth(true)} className="text-white">
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24">

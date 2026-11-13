@@ -3572,3 +3572,54 @@ body {
 }
 .gazin-nav .gazin-nav-item:hover{ color:var(--bb-ink) !important; }
 /* <<< header-pearl-glass <<< */
+/* >>> natal-luzes >>> */
+.natal-luzes{
+  position:absolute; top:0; left:0; right:0; height:14px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:0 6px; overflow:hidden; pointer-events:none; z-index:2;
+}
+.natal-luzes::before{
+  content:""; position:absolute; top:3px; left:0; right:0; height:1.5px;
+  background:linear-gradient(90deg,#3f7a43,#2e5d33,#3f7a43); opacity:.85;
+}
+.natal-luzes i{
+  position:relative; display:block; width:6px; height:9px; margin-top:4px;
+  border-radius:50% 50% 55% 55% / 40% 40% 60% 60%;
+  background:radial-gradient(circle at 35% 30%, #fff9 0, transparent 40%), var(--luz,#e53935);
+  box-shadow:0 0 6px 1px var(--luz,#e53935);
+  animation:natal-pisca-a 1.8s ease-in-out infinite;
+}
+.natal-luzes i::before{
+  content:""; position:absolute; top:-3px; left:1.5px; width:3px; height:3px;
+  background:#2e5d33; border-radius:1px;
+}
+.natal-luzes i:nth-child(3n+1){ --luz:#e53935; }
+.natal-luzes i:nth-child(3n+2){ --luz:#2fa84f; }
+.natal-luzes i:nth-child(3n){   --luz:#ffc83d; }
+.natal-luzes i:nth-child(odd){ margin-top:6px; }
+.natal-luzes i:nth-child(even){ animation-name:natal-pisca-b; }
+.natal-luzes i:nth-child(4n){ animation-delay:.4s; }
+.natal-luzes i:nth-child(5n){ animation-delay:.9s; }
+@keyframes natal-pisca-a{ 0%,100%{opacity:1} 50%{opacity:.25} }
+@keyframes natal-pisca-b{ 0%,100%{opacity:.25} 50%{opacity:1} }
+@media (max-width:768px){
+  .natal-luzes i:nth-child(2n){ display:none; }
+}
+@media (prefers-reduced-motion:reduce){
+  .natal-luzes i{ animation:none; opacity:.9; }
+}
+/* <<< natal-luzes <<< */
+
+/* >>> sidebar-perolado >>> */
+.sidebar-menu-header{
+  background:linear-gradient(135deg, rgba(236,224,212,.98) 0%, rgba(248,242,236,.98) 100%);
+  border-bottom:1px solid rgba(120,96,74,.14);
+}
+.sidebar-menu-header span{ color:#2a2d3e; }
+.sidebar-menu-header button{ color:#2a2d3e; }
+.sidebar-menu ul li a:hover,
+.sidebar-menu ul li button.sidebar-cat:hover{
+  background:#faf5ef;
+  color:#2a2d3e;
+}
+/* <<< sidebar-perolado <<< */

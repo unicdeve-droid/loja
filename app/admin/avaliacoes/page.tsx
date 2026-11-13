@@ -1,7 +1,7 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface Avaliacao {
   id: string
@@ -10,10 +10,13 @@ interface Avaliacao {
   estrelas: number
   comentario: string | null
   cidade: string | null
+  fotoUrl: string | null
   data: string
   ativo: boolean
   produto: { nome: string; slug: string }
 }
+
+interface ProdutoOpcao { id: string; nome: string }
 
 function Estrelas({ n }: { n: number }) {
   return (
@@ -23,44 +26,47 @@ function Estrelas({ n }: { n: number }) {
   )
 }
 
+// yyyy-mm-dd no fuso local (valor do <input type="date">)
+function paraInputData(iso?: string) {
+  const d = iso ? new Date(iso) : new Date()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const dia = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${dia}`
+}
+
 export default function AdminAvaliacoesPage() {
   const [avaliacoes,  setAvaliacoes]  = useState<Avaliacao[]>([])
   const [loading,     setLoading]     = useState(true)
   const [filtro,      setFiltro]      = useState<'todos' | 'ativos' | 'inativos'>('todos')
-  const [editando,    setEditando]    = useState<Avaliacao | null>(null)
   const [saving,      setSaving]      = useState(false)
   const [erro,        setErro]        = useState('')
 
-  /* estados do modal de edição */
+  /* modal (nova avaliação ou edição) */
+  const [modalAberto, setModalAberto] = useState(false)
+  const [editando,    setEditando]    = useState<Avaliacao | null>(null) // null = nova
+  const [eprodutoId,  setEProdutoId]  = useState('')
   const [enomeCliente, setENomeCliente] = useState('')
   const [eestrelas,    setEEstrelas]    = useState(5)
   const [ecomentario,  setEComentario]  = useState('')
   const [ecidade,      setECidade]      = useState('')
+  const [edata,        setEData]        = useState(paraInputData())
+  const [efotoUrl,     setEFotoUrl]     = useState('')
   const [eativo,       setEAtivo]       = useState(true)
+  const [enviandoFoto, setEnviandoFoto] = useState(false)
 
-  /* Carrega todas avaliações de todos os produtos via API */
+  /* busca de produto (só na criação) */
+  const [buscaProd,    setBuscaProd]    = useState('')
+  const [opcoesProd,   setOpcoesProd]   = useState<ProdutoOpcao[]>([])
+  const timerBusca = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const carregar = useCallback(async () => {
     setLoading(true)
     try {
-      // Busca produtos e depois avaliações de cada um
-      const resProd = await fetch('/api/admin/produtos?porPagina=100')
-      const dataProd = await resProd.json()
-      const produtos: { id: string; nome: string; slug: string }[] = (dataProd.produtos ?? [])
-
-      const listas = await Promise.all(
-        produtos.map((p) =>
-          fetch(`/api/admin/avaliacoes/${p.id}`)
-            .then((r) => r.json())
-            .then((avs: Avaliacao[]) =>
-              avs.map((a) => ({ ...a, produto: { nome: p.nome, slug: p.slug } }))
-            )
-            .catch(() => [] as Avaliacao[])
-        )
-      )
-      const todas = listas.flat().sort(
-        (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()
-      )
-      setAvaliacoes(todas)
+      const res = await fetch('/api/admin/avaliacoes')
+      const data = await res.json()
+      setAvaliacoes(Array.isArray(data) ? data : [])
+    } catch {
+      setAvaliacoes([])
     } finally {
       setLoading(false)
     }
@@ -68,32 +74,95 @@ export default function AdminAvaliacoesPage() {
 
   useEffect(() => { carregar() }, [carregar])
 
+  async function buscarProdutos(termo: string) {
+    try {
+      const url = termo.trim()
+        ? `/api/admin/produtos?busca=${encodeURIComponent(termo.trim())}`
+        : '/api/admin/produtos'
+      const r = await fetch(url)
+      const d = await r.json()
+      setOpcoesProd((d.produtos ?? []).map((p: any) => ({ id: p.id, nome: p.nome })))
+    } catch { setOpcoesProd([]) }
+  }
+
+  function onBuscaProd(v: string) {
+    setBuscaProd(v)
+    if (timerBusca.current) clearTimeout(timerBusca.current)
+    timerBusca.current = setTimeout(() => buscarProdutos(v), 300)
+  }
+
+  function abrirNova() {
+    setEditando(null)
+    setEProdutoId('')
+    setENomeCliente('')
+    setEEstrelas(5)
+    setEComentario('')
+    setECidade('')
+    setEData(paraInputData())
+    setEFotoUrl('')
+    setEAtivo(true)
+    setBuscaProd('')
+    setErro('')
+    buscarProdutos('')
+    setModalAberto(true)
+  }
+
   function abrirEditar(av: Avaliacao) {
     setEditando(av)
+    setEProdutoId(av.produtoId)
     setENomeCliente(av.nomeCliente)
     setEEstrelas(av.estrelas)
     setEComentario(av.comentario ?? '')
     setECidade(av.cidade ?? '')
+    setEData(paraInputData(av.data))
+    setEFotoUrl(av.fotoUrl ?? '')
     setEAtivo(av.ativo)
     setErro('')
+    setModalAberto(true)
   }
 
-  async function salvarEdicao() {
-    if (!editando) return
+  function fecharModal() { setModalAberto(false); setEditando(null) }
+
+  async function enviarFoto(file: File) {
+    setEnviandoFoto(true); setErro('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('tipo', 'avaliacao')
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd })
+      const d = await res.json()
+      if (res.ok && d.url) setEFotoUrl(d.url)
+      else setErro(d.erro || 'Erro ao enviar a foto.')
+    } catch { setErro('Erro ao enviar a foto.') }
+    finally { setEnviandoFoto(false) }
+  }
+
+  async function salvar() {
+    if (!editando && !eprodutoId) { setErro('Escolha o produto.'); return }
+    if (!enomeCliente.trim())      { setErro('Informe o nome do cliente.'); return }
     setSaving(true); setErro('')
     try {
-      const res = await fetch(`/api/admin/avaliacoes/${editando.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nomeCliente: enomeCliente,
-          estrelas:    eestrelas,
-          comentario:  ecomentario || null,
-          cidade:      ecidade     || null,
-          ativo:       eativo,
-        }),
-      })
-      if (res.ok) { setEditando(null); carregar() }
+      const corpo = {
+        nomeCliente: enomeCliente.trim(),
+        estrelas:    eestrelas,
+        comentario:  ecomentario || null,
+        cidade:      ecidade     || null,
+        fotoUrl:     efotoUrl    || null,
+        data:        edata ? new Date(`${edata}T12:00:00`).toISOString() : undefined,
+        ativo:       eativo,
+      }
+      const res = editando
+        ? await fetch(`/api/admin/avaliacoes/${editando.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(corpo),
+          })
+        : await fetch('/api/admin/avaliacoes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...corpo, produtoId: eprodutoId }),
+          })
+      if (res.ok) { fecharModal(); carregar() }
       else { const d = await res.json(); setErro(d.erro || 'Erro ao salvar.') }
     } catch { setErro('Erro ao salvar.') }
     finally { setSaving(false) }
@@ -103,7 +172,7 @@ export default function AdminAvaliacoesPage() {
     await fetch(`/api/admin/avaliacoes/${av.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...av, ativo: !av.ativo }),
+      body: JSON.stringify({ ativo: !av.ativo }),
     })
     carregar()
   }
@@ -124,7 +193,15 @@ export default function AdminAvaliacoesPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Avaliações</h1>
-        <p className="text-sm text-gray-400">{avaliacoes.length} no total</p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-gray-400">{avaliacoes.length} no total</p>
+          <button
+            onClick={abrirNova}
+            className="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            + Nova avaliação
+          </button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -157,6 +234,9 @@ export default function AdminAvaliacoesPage() {
             className={`bg-white rounded-xl border p-5 ${av.ativo ? 'border-gray-200' : 'border-gray-100 opacity-60'}`}
           >
             <div className="flex items-start justify-between gap-4">
+              {av.fotoUrl && (
+                <img src={av.fotoUrl} alt="" className="w-14 h-14 rounded-lg object-cover border border-gray-100 shrink-0" />
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <span className="font-medium text-gray-900 text-sm">{av.nomeCliente}</span>
@@ -201,17 +281,42 @@ export default function AdminAvaliacoesPage() {
         ))}
       </div>
 
-      {/* Modal de edição */}
-      {editando && (
+      {/* Modal (nova / editar) */}
+      {modalAberto && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl max-h-[92vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">Editar avaliação</h2>
-              <button onClick={() => setEditando(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              <h2 className="font-semibold text-gray-900">{editando ? 'Editar avaliação' : 'Nova avaliação'}</h2>
+              <button onClick={fecharModal} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
             </div>
 
             <div className="p-6 space-y-4">
               {erro && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{erro}</p>}
+
+              {/* Produto: escolhe só ao criar */}
+              {!editando ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                  <input
+                    type="text" value={buscaProd}
+                    onChange={(e) => onBuscaProd(e.target.value)}
+                    placeholder="Buscar produto pelo nome ou código…"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <select
+                    value={eprodutoId}
+                    onChange={(e) => setEProdutoId(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecione…</option>
+                    {opcoesProd.map((p) => (
+                      <option key={p.id} value={p.id}>{p.nome}</option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <p className="text-xs text-blue-500">{editando.produto.nome}</p>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nome do cliente</label>
@@ -222,22 +327,39 @@ export default function AdminAvaliacoesPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estrelas (1–5)</label>
-                <input
-                  type="number" min="1" max="5" value={eestrelas}
-                  onChange={(e) => setEEstrelas(parseInt(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                  <input
+                    type="text" value={ecidade}
+                    onChange={(e) => setECidade(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                  <input
+                    type="date" value={edata}
+                    onChange={(e) => setEData(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
-                <input
-                  type="text" value={ecidade}
-                  onChange={(e) => setECidade(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estrelas</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n} type="button"
+                      onClick={() => setEEstrelas(n)}
+                      className={`text-2xl leading-none ${n <= eestrelas ? 'text-yellow-400' : 'text-gray-300'}`}
+                      aria-label={`${n} estrela${n > 1 ? 's' : ''}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
@@ -247,6 +369,29 @@ export default function AdminAvaliacoesPage() {
                   onChange={(e) => setEComentario(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Foto do cliente</label>
+                {efotoUrl ? (
+                  <div className="flex items-center gap-3">
+                    <img src={efotoUrl} alt="" className="w-16 h-16 rounded-lg object-cover border border-gray-200" />
+                    <button
+                      type="button" onClick={() => setEFotoUrl('')}
+                      className="text-xs text-red-500 hover:text-red-700"
+                    >
+                      Remover foto
+                    </button>
+                  </div>
+                ) : (
+                  <input
+                    type="file" accept="image/jpeg,image/png,image/webp"
+                    disabled={enviandoFoto}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) enviarFoto(f); e.target.value = '' }}
+                    className="block w-full text-sm text-gray-600"
+                  />
+                )}
+                {enviandoFoto && <p className="text-xs text-gray-400 mt-1">Enviando foto…</p>}
               </div>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -260,13 +405,13 @@ export default function AdminAvaliacoesPage() {
 
               <div className="flex gap-3 pt-2">
                 <button
-                  onClick={salvarEdicao} disabled={saving}
+                  onClick={salvar} disabled={saving || enviandoFoto}
                   className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   {saving ? 'Salvando…' : 'Salvar'}
                 </button>
                 <button
-                  onClick={() => setEditando(null)}
+                  onClick={fecharModal}
                   className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors"
                 >
                   Cancelar

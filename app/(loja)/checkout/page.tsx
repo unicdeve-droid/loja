@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
+import { usePromocaoLancamentos } from '@/lib/usePromocao'
 
 function fmtBRL(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { data: session } = useSession()
   const { itens, subtotal, setFrete, limparCarrinho } = useCarrinho()
+  const descontoPromo = usePromocaoLancamentos(itens)
 
   // Detecta se o carrinho tem só digitais
   const todoDigital = itens.length > 0 && itens.every(i => i.tipo !== 'FISICO')
@@ -223,7 +225,7 @@ export default function CheckoutPage() {
     })
   }
 
-  const totalFinal = subtotal + (freteAtivo?.valor ?? 0)
+  const totalFinal = subtotal + (freteAtivo?.valor ?? 0) - descontoPromo
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -540,6 +542,12 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </div>
+                {descontoPromo > 0 && (
+                  <div className="flex justify-between text-xs mt-3 pt-3 border-t border-gray-100 text-green-700">
+                    <span>Lançamentos: 2º item 50% OFF</span>
+                    <span className="font-semibold">− {fmtBRL(descontoPromo)}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

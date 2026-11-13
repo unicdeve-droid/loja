@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { calcularDescontoLancamentos } from '@/lib/promocao'
 
 // Pedido de infoproduto sem necessidade de login
 export async function POST(req: NextRequest) {
@@ -21,11 +22,13 @@ export async function POST(req: NextRequest) {
 
     let subtotal = 0
     const itensData: any[] = []
+    const itensPromo: { preco: number; quantidade: number; categoriaNome?: string }[] = []
 
     for (const item of itens) {
-      const produto = await prisma.produto.findUnique({ where: { id: item.produtoId, ativo: true } })
+      const produto = await prisma.produto.findUnique({ where: { id: item.produtoId, ativo: true }, include: { categoria: { select: { nome: true } } } })
       if (!produto) return NextResponse.json({ erro: `Produto não encontrado.` }, { status: 400 })
       subtotal += produto.preco * item.quantidade
+      itensPromo.push({ preco: produto.preco, quantidade: item.quantidade, categoriaNome: produto.categoria?.nome })
       const sufixo = [item.formato, item.tamanho].filter(Boolean).join(' • ')
       itensData.push({
         produtoId:       produto.id,
@@ -54,11 +57,17 @@ export async function POST(req: NextRequest) {
     }
     usuarioId = usuario.id
 
+    // Promoção "Lançamentos": 2º item com 50% (0 quando não se aplica)
+    const descontoPromo = calcularDescontoLancamentos(itensPromo)
+    const totalPedido = descontoPromo > 0
+      ? Math.round((subtotal - descontoPromo) * 100) / 100
+      : subtotal
+
     const pedido = await prisma.pedido.create({
       data: {
         usuarioId,
         formaPagamento,
-        total:       subtotal,
+        total:       totalPedido,
         frete:       0,
         prazoEntrega: 'Entrega imediata (digital)',
         cartaoNome:     formaPagamento === 'CARTAO' ? (cartaoNome     || null) : null,

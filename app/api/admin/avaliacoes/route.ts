@@ -21,17 +21,34 @@ async function recalcularMedia(produtoId: string) {
   })
 }
 
+// GET /api/admin/avaliacoes → todas as avaliações (com o produto de cada uma)
+export async function GET() {
+  if (!await checkAdmin()) return NextResponse.json({ erro: 'Acesso negado.' }, { status: 403 })
+
+  const avaliacoes = await prisma.avaliacao.findMany({
+    include: { produto: { select: { nome: true, slug: true } } },
+    orderBy: { data: 'desc' },
+  })
+  return NextResponse.json(avaliacoes)
+}
+
 export async function POST(req: NextRequest) {
   if (!await checkAdmin()) return NextResponse.json({ erro: 'Acesso negado.' }, { status: 403 })
 
-  const { produtoId, nomeCliente, estrelas, comentario, cidade } = await req.json()
+  const { produtoId, nomeCliente, estrelas, comentario, cidade, fotoUrl, data } = await req.json()
 
   if (!produtoId || !nomeCliente || !estrelas) {
     return NextResponse.json({ erro: 'Campos obrigatórios: produtoId, nomeCliente, estrelas.' }, { status: 400 })
   }
 
+  const dataAval = data ? new Date(data) : undefined
   const avaliacao = await prisma.avaliacao.create({
-    data: { produtoId, nomeCliente, estrelas, comentario, cidade, ativo: true },
+    data: {
+      produtoId, nomeCliente, estrelas, comentario, cidade,
+      fotoUrl: fotoUrl || null,
+      ...(dataAval && !isNaN(dataAval.getTime()) ? { data: dataAval } : {}),
+      ativo: true,
+    },
   })
   await recalcularMedia(produtoId)
 

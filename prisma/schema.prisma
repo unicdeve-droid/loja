@@ -77,6 +77,7 @@ model Avaliacao {
   estrelas    Int
   comentario  String?  @db.Text
   cidade      String?
+  fotoUrl     String?
   data        DateTime @default(now())
   ativo       Boolean  @default(true)
 }

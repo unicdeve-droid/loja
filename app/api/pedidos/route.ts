@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { calcularDescontoLancamentos } from '@/lib/promocao'
 
 export async function GET() {
   try {
@@ -49,11 +50,13 @@ export async function POST(req: NextRequest) {
 
     let subtotal = 0
     const itensData: any[] = []
+    const itensPromo: { preco: number; quantidade: number; categoriaNome?: string }[] = []
     let todoDigital = true
 
     for (const item of itens) {
       const produto = await prisma.produto.findUnique({
         where: { id: item.produtoId, ativo: true },
+        include: { categoria: { select: { nome: true } } },
       })
       if (!produto) {
         return NextResponse.json(
@@ -65,6 +68,7 @@ export async function POST(req: NextRequest) {
       if (produto.tipo !== 'DIGITAL') todoDigital = false
 
       subtotal += produto.preco * item.quantidade
+      itensPromo.push({ preco: produto.preco, quantidade: item.quantidade, categoriaNome: produto.categoria?.nome })
       itensData.push({
         produtoId:        produto.id,
         nome:             produto.nome,
@@ -93,11 +97,17 @@ export async function POST(req: NextRequest) {
     const cfgPrazo = await prisma.siteConfig.findUnique({ where: { key: 'prazo_entrega_dias' } })
     const prazoEntrega = todoDigital ? 'Entrega imediata (digital)' : `${cfgPrazo?.value ?? 7} dias úteis`
 
+    // Promoção "Lançamentos": 2º item com 50% (0 quando não se aplica)
+    const descontoPromo = calcularDescontoLancamentos(itensPromo)
+    const totalPedido = descontoPromo > 0
+      ? Math.round((subtotal - descontoPromo + freteReal) * 100) / 100
+      : subtotal + freteReal
+
     const pedido = await prisma.pedido.create({
       data: {
         usuarioId,
         formaPagamento,
-        total:       subtotal + freteReal,
+        total:       totalPedido,
         frete:       freteReal,
         prazoEntrega,
         cep:         cep         || null,

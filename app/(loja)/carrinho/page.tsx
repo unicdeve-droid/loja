@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
+import { usePromocaoLancamentos } from '@/lib/usePromocao'
 
 function fmtBRL(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -22,6 +23,7 @@ export default function CarrinhoPage() {
     limparCarrinho,
     todoDigital,
   } = useCarrinho()
+  const descontoPromo = usePromocaoLancamentos(itens)
 
   if (itens.length === 0) {
     return (
@@ -166,9 +168,16 @@ export default function CarrinhoPage() {
                 </div>
               </div>
 
+              {descontoPromo > 0 && (
+                <div className="flex justify-between text-sm mb-4">
+                  <span className="text-green-700">Lançamentos: 2º item com 50% OFF</span>
+                  <span className="font-medium text-green-700">− {fmtBRL(descontoPromo)}</span>
+                </div>
+              )}
+
               <div className="border-t border-gray-100 pt-4 flex justify-between items-center mb-5">
                 <span className="font-bold text-gray-900">Total</span>
-                <span className="text-xl font-bold text-gray-900">{fmtBRL(total)}</span>
+                <span className="text-xl font-bold text-gray-900">{fmtBRL(total - descontoPromo)}</span>
               </div>
 
               <button

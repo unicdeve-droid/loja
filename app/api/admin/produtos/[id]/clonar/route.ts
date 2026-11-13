@@ -10,8 +10,8 @@ async function checkAdmin() {
 }
 
 // POST /api/admin/produtos/[id]/clonar
-// Copia o produto com as variações. O clone nasce INATIVO, sem SKU e sem avaliações,
-// para você trocar foto/título antes de publicar.
+// Copia o produto com as variações e as avaliações (feedbacks). O clone nasce INATIVO
+// e sem SKU, para você trocar foto/título antes de publicar.
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   if (!await checkAdmin()) {
     return NextResponse.json({ erro: 'Acesso negado.' }, { status: 403 })
@@ -20,7 +20,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   try {
     const original = await prisma.produto.findUnique({
       where: { id: params.id },
-      include: { variacoes: true },
+      include: { variacoes: true, avaliacoes: true },
     })
     if (!original) {
       return NextResponse.json({ erro: 'Produto não encontrado.' }, { status: 404 })
@@ -33,6 +33,12 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       slug = `${base}-${n}`
     }
 
+    // Média/total do clone = só das avaliações visíveis copiadas (mesma regra do admin)
+    const visiveis = original.avaliacoes.filter(a => a.ativo)
+    const mediaClone = visiveis.length
+      ? visiveis.reduce((acc, a) => acc + a.estrelas, 0) / visiveis.length
+      : 0
+
     const clone = await prisma.produto.create({
       data: {
         nome:            `${original.nome} (cópia)`,
@@ -44,8 +50,8 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
         categoriaId:     original.categoriaId,
         fotos:           original.fotos,
         ativo:           false,
-        mediaEstrelas:   0,
-        totalAvaliacoes: 0,
+        mediaEstrelas:   mediaClone,
+        totalAvaliacoes: visiveis.length,
         temCor:          original.temCor,
         temVoltagem:     original.temVoltagem,
         temTamanho:      original.temTamanho,
@@ -55,6 +61,19 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
         pixQrCodeEstatico: original.pixQrCodeEstatico,
         variacoes: original.variacoes.length
           ? { create: original.variacoes.map(v => ({ tipo: v.tipo, valor: v.valor, ativo: v.ativo })) }
+          : undefined,
+        avaliacoes: original.avaliacoes.length
+          ? {
+              create: original.avaliacoes.map(a => ({
+                nomeCliente: a.nomeCliente,
+                estrelas:    a.estrelas,
+                comentario:  a.comentario,
+                cidade:      a.cidade,
+                fotoUrl:     a.fotoUrl,
+                data:        a.data,
+                ativo:       a.ativo,
+              })),
+            }
           : undefined,
       },
     })

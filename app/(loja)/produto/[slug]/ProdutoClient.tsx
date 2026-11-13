@@ -13,6 +13,7 @@ interface Variacao { id: string; tipo: string; valor: string; ativo: boolean }
 interface Avaliacao {
   id: string; estrelas: number; comentario?: string
   nomeCliente: string; cidade?: string; data: string
+  fotoUrl?: string | null
 }
 interface Produto {
   id: string; nome: string; slug: string; codigo?: string
@@ -532,6 +533,14 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
                     </div>
                     {av.comentario && (
                       <p className="avaliacao-comentario">{av.comentario}</p>
+                    )}
+                    {av.fotoUrl && (
+                      <img
+                        src={av.fotoUrl}
+                        alt={`Foto de ${av.nomeCliente}`}
+                        loading="lazy"
+                        style={{ marginTop: 8, width: 96, height: 96, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee' }}
+                      />
                     )}
                   </div>
                 ))}

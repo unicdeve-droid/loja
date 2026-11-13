@@ -42,10 +42,16 @@ export async function PUT(
 ) {
   if (!await checkAdmin()) return NextResponse.json({ erro: 'Acesso negado.' }, { status: 403 })
 
-  const { nomeCliente, estrelas, comentario, cidade, ativo } = await req.json()
+  const { nomeCliente, estrelas, comentario, cidade, ativo, fotoUrl, data } = await req.json()
+  const dataAval = data ? new Date(data) : undefined
   const avaliacao = await prisma.avaliacao.update({
     where: { id: params.id },
-    data:  { nomeCliente, estrelas, comentario, cidade, ativo },
+    data:  {
+      nomeCliente, estrelas, comentario, cidade, ativo,
+      // undefined = não mexe; null/'' = remove a foto
+      ...(fotoUrl !== undefined ? { fotoUrl: fotoUrl || null } : {}),
+      ...(dataAval && !isNaN(dataAval.getTime()) ? { data: dataAval } : {}),
+    },
   })
   await recalcularMedia(avaliacao.produtoId)
   return NextResponse.json(avaliacao)

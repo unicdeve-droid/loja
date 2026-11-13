@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 function VisaIcon() {
   return (
@@ -97,37 +96,37 @@ export default function Footer({ siteNome }: { siteNome?: string }) {
             <div className="footer-nav-col">
               <h3>Institucional</h3>
               <ul>
-                <li><Link href="/pagina/a-empresa">A empresa</Link></li>
-                <li><Link href="/pagina/trabalhe-conosco">Trabalhe conosco</Link></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>A empresa</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Trabalhe conosco</a></li>
               </ul>
             </div>
             <div className="footer-nav-col">
               <h3>Dúvidas</h3>
               <ul>
-                <li><Link href="/pagina/como-comprar">Como comprar</Link></li>
-                <li><Link href="/pagina/formas-de-pagamento">Formas de pagamento</Link></li>
-                <li><Link href="/minha-conta/pedidos">Acompanhar pedido</Link></li>
-                <li><Link href="/pagina/troca-e-devolucao">Troca e devolução</Link></li>
-                <li><Link href="/pagina/politica-de-entrega">Política de Entrega</Link></li>
-                <li><Link href="/pagina/privacidade-e-seguranca">Privacidade e Segurança</Link></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Como comprar</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Formas de pagamento</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Acompanhar pedido</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Troca e devolução</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Política de Entrega</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Privacidade e Segurança</a></li>
               </ul>
             </div>
             <div className="footer-nav-col">
               <h3>Categorias</h3>
               <ul>
-                <li><Link href="/categoria/celulares-e-smartphones">Celulares</Link></li>
-                <li><Link href="/categoria/eletrodomesticos">Eletrodomésticos</Link></li>
-                <li><Link href="/categoria/tvs-e-video">TV e Vídeo</Link></li>
-                <li><Link href="/categoria/moveis">Móveis</Link></li>
-                <li><Link href="/categoria/informatica">Informática</Link></li>
-                <li><Link href="/categoria/infoprodutos">Infoprodutos</Link></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Celulares</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Eletrodomésticos</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>TV e Vídeo</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Móveis</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Informática</a></li>
+                <li><a onClick={e => e.preventDefault()} style={{ pointerEvents: 'none', cursor: 'default' }}>Infoprodutos</a></li>
               </ul>
             </div>
             <div className="footer-nav-col">
               <h3>Redes Sociais</h3>
               <ul>
-                <li><a href="#" className="flex items-center gap-2"><svg width="16" height="16" fill="#0D71F0" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
-                <li><a href="#" className="flex items-center gap-2"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#0D71F0" strokeWidth="1.8"/><circle cx="12" cy="12" r="4" stroke="#0D71F0" strokeWidth="1.8"/><circle cx="17.5" cy="6.5" r="1" fill="#0D71F0"/></svg>Instagram</a></li>
+                <li><a onClick={e => e.preventDefault()} className="flex items-center gap-2" style={{ pointerEvents: 'none', cursor: 'default' }}><svg width="16" height="16" fill="#0D71F0" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>Facebook</a></li>
+                <li><a onClick={e => e.preventDefault()} className="flex items-center gap-2" style={{ pointerEvents: 'none', cursor: 'default' }}><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#0D71F0" strokeWidth="1.8"/><circle cx="12" cy="12" r="4" stroke="#0D71F0" strokeWidth="1.8"/><circle cx="17.5" cy="6.5" r="1" fill="#0D71F0"/></svg>Instagram</a></li>
               </ul>
             </div>
           </nav>
