@@ -158,7 +158,7 @@ export function ProdutoForm({ produto }: ProdutoFormProps) {
       })
       const data = await res.json()
       if (!res.ok) { setErro(data.erro || 'Erro ao salvar.'); return }
-      router.push('/admin/produtos')
+      router.push('/sadam/produtos')
       router.refresh()
     } catch  { setErro('Erro ao salvar.')
     } finally { setSaving(false) }

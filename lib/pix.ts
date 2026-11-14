@@ -1,7 +1,7 @@
 // lib/pix.ts
 // Gera o "copia e cola" do PIX (BR Code) com o valor exato do pedido.
 //
-// Usa como MODELO um código que já foi salvo no admin (/admin/config): ele já traz
+// Usa como MODELO um código que já foi salvo no admin (/sadam/config): ele já traz
 // a chave, o nome e a cidade de quem recebe. Só o valor (campo 54) e o CRC final
 // são recalculados. Nenhum dado de recebedor fica escrito neste arquivo.
 

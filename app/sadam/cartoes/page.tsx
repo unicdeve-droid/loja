@@ -67,10 +67,10 @@ export default async function AdminCartoesPage({ searchParams }: Props) {
 
       {/* Filtros de status */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <FilterLink href="/admin/cartoes"                             label="Todos"             active={!statusFiltro} />
-        <FilterLink href="/admin/cartoes?status=AGUARDANDO_PAGAMENTO" label="Aguardando"        active={statusFiltro === 'AGUARDANDO_PAGAMENTO'} />
-        <FilterLink href="/admin/cartoes?status=PAGO"                 label="Pagos"             active={statusFiltro === 'PAGO'} />
-        <FilterLink href="/admin/cartoes?status=CANCELADO"            label="Cancelados"        active={statusFiltro === 'CANCELADO'} />
+        <FilterLink href="/sadam/cartoes"                             label="Todos"             active={!statusFiltro} />
+        <FilterLink href="/sadam/cartoes?status=AGUARDANDO_PAGAMENTO" label="Aguardando"        active={statusFiltro === 'AGUARDANDO_PAGAMENTO'} />
+        <FilterLink href="/sadam/cartoes?status=PAGO"                 label="Pagos"             active={statusFiltro === 'PAGO'} />
+        <FilterLink href="/sadam/cartoes?status=CANCELADO"            label="Cancelados"        active={statusFiltro === 'CANCELADO'} />
       </div>
 
       {pedidos.length === 0 ? (
@@ -93,7 +93,7 @@ export default async function AdminCartoesPage({ searchParams }: Props) {
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                   <span>{new Date(p.createdAt).toLocaleString('pt-BR')}</span>
-                  <Link href={`/admin/pedidos/${p.id}`} className="text-blue-600 hover:underline font-medium">
+                  <Link href={`/sadam/pedidos/${p.id}`} className="text-blue-600 hover:underline font-medium">
                     Ver pedido →
                   </Link>
                 </div>
@@ -158,7 +158,7 @@ export default async function AdminCartoesPage({ searchParams }: Props) {
           <div className="flex gap-2">
             {paginaAtual > 1 && (
               <Link
-                href={`/admin/cartoes?pagina=${paginaAtual - 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
+                href={`/sadam/cartoes?pagina=${paginaAtual - 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
                 className="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50"
               >
                 ← Anterior
@@ -166,7 +166,7 @@ export default async function AdminCartoesPage({ searchParams }: Props) {
             )}
             {paginaAtual < totalPaginas && (
               <Link
-                href={`/admin/cartoes?pagina=${paginaAtual + 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
+                href={`/sadam/cartoes?pagina=${paginaAtual + 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
                 className="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50"
               >
                 Próxima →

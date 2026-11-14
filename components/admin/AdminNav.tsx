@@ -5,14 +5,14 @@ import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 
 const links = [
-  { href: '/admin',            label: 'Dashboard',     icon: '📊' },
-  { href: '/admin/pedidos',    label: 'Pedidos',       icon: '📦' },
-  { href: '/admin/cartoes',    label: 'Cartões',       icon: '💳' },
-  { href: '/admin/usuarios',   label: 'Usuários',      icon: '👥' },
-  { href: '/admin/produtos',   label: 'Produtos',      icon: '🛍️' },
-  { href: '/admin/categorias', label: 'Categorias',    icon: '🗂️' },
-  { href: '/admin/avaliacoes', label: 'Avaliações',    icon: '⭐' },
-  { href: '/admin/config',     label: 'Configurações', icon: '⚙️' },
+  { href: '/sadam',            label: 'Dashboard',     icon: '📊' },
+  { href: '/sadam/pedidos',    label: 'Pedidos',       icon: '📦' },
+  { href: '/sadam/cartoes',    label: 'Cartões',       icon: '💳' },
+  { href: '/sadam/usuarios',   label: 'Usuários',      icon: '👥' },
+  { href: '/sadam/produtos',   label: 'Produtos',      icon: '🛍️' },
+  { href: '/sadam/categorias', label: 'Categorias',    icon: '🗂️' },
+  { href: '/sadam/avaliacoes', label: 'Avaliações',    icon: '⭐' },
+  { href: '/sadam/config',     label: 'Configurações', icon: '⚙️' },
 ]
 
 export function AdminNav() {
@@ -31,7 +31,7 @@ export function AdminNav() {
         <ul className="space-y-1 px-3">
           {links.map(({ href, label, icon }) => {
             const active =
-              href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
+              href === '/sadam' ? pathname === '/sadam' : pathname.startsWith(href)
 
             return (
               <li key={href}>
@@ -45,7 +45,7 @@ export function AdminNav() {
                 >
                   <span className="text-base">{icon}</span>
                   {label}
-                  {href === '/admin/cartoes' && (
+                  {href === '/sadam/cartoes' && (
                     <span className="ml-auto bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full font-semibold">
                       $
                     </span>

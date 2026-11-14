@@ -82,7 +82,7 @@ export default function AdminPedidoDetailPage() {
   return (
     <div className="p-8 max-w-4xl">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/admin/pedidos" className="text-gray-400 hover:text-gray-600 text-sm">
+        <Link href="/sadam/pedidos" className="text-gray-400 hover:text-gray-600 text-sm">
           ← Pedidos
         </Link>
         <h1 className="text-xl font-bold text-gray-900">

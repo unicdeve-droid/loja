@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
         <section className="xl:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Últimos pedidos</h2>
-            <Link href="/admin/pedidos" className="text-sm text-blue-600 hover:underline">
+            <Link href="/sadam/pedidos" className="text-sm text-blue-600 hover:underline">
               Ver todos →
             </Link>
           </div>
@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
                 {d.ultimosPedidos.map((p) => (
                   <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-2.5">
-                      <Link href={`/admin/pedidos/${p.id}`} className="text-blue-600 hover:underline font-mono text-xs">
+                      <Link href={`/sadam/pedidos/${p.id}`} className="text-blue-600 hover:underline font-mono text-xs">
                         {p.id.slice(0, 8)}…
                       </Link>
                     </td>
@@ -137,10 +137,10 @@ export default async function AdminDashboardPage() {
       <section className="mt-6 bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Atalhos rápidos</h2>
         <div className="flex flex-wrap gap-3">
-          <QuickLink href="/admin/produtos/novo" label="+ Novo produto" />
-          <QuickLink href="/admin/categorias"    label="Gerenciar categorias" />
-          <QuickLink href="/admin/config"        label="Configurações do site" />
-          <QuickLink href="/admin/avaliacoes"    label="Moderar avaliações" />
+          <QuickLink href="/sadam/produtos/novo" label="+ Novo produto" />
+          <QuickLink href="/sadam/categorias"    label="Gerenciar categorias" />
+          <QuickLink href="/sadam/config"        label="Configurações do site" />
+          <QuickLink href="/sadam/avaliacoes"    label="Moderar avaliações" />
         </div>
       </section>
     </div>

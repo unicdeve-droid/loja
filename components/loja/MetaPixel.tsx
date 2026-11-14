@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { PIXEL_ID } from '@/lib/pixel'
 
-// Meta Pixel — carregado apenas nas páginas da loja (não no /admin).
+// Meta Pixel — carregado apenas nas páginas da loja (não no /sadam).
 // O PageView inicial vem do código base; as trocas de página (navegação
 // interna do Next, sem recarregar) disparam um novo PageView aqui.
 export default function MetaPixel() {

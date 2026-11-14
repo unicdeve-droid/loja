@@ -56,13 +56,13 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <FilterLink href="/admin/pedidos"                             label="Todos"             active={!statusFiltro} />
-        <FilterLink href="/admin/pedidos?status=AGUARDANDO_PAGAMENTO" label="Aguardando pgto."  active={statusFiltro === 'AGUARDANDO_PAGAMENTO'} />
-        <FilterLink href="/admin/pedidos?status=PAGO"                 label="Pagos"             active={statusFiltro === 'PAGO'} />
-        <FilterLink href="/admin/pedidos?status=EM_SEPARACAO"         label="Em separação"      active={statusFiltro === 'EM_SEPARACAO'} />
-        <FilterLink href="/admin/pedidos?status=ENVIADO"              label="Enviados"          active={statusFiltro === 'ENVIADO'} />
-        <FilterLink href="/admin/pedidos?status=ENTREGUE"             label="Entregues"         active={statusFiltro === 'ENTREGUE'} />
-        <FilterLink href="/admin/pedidos?status=CANCELADO"            label="Cancelados"        active={statusFiltro === 'CANCELADO'} />
+        <FilterLink href="/sadam/pedidos"                             label="Todos"             active={!statusFiltro} />
+        <FilterLink href="/sadam/pedidos?status=AGUARDANDO_PAGAMENTO" label="Aguardando pgto."  active={statusFiltro === 'AGUARDANDO_PAGAMENTO'} />
+        <FilterLink href="/sadam/pedidos?status=PAGO"                 label="Pagos"             active={statusFiltro === 'PAGO'} />
+        <FilterLink href="/sadam/pedidos?status=EM_SEPARACAO"         label="Em separação"      active={statusFiltro === 'EM_SEPARACAO'} />
+        <FilterLink href="/sadam/pedidos?status=ENVIADO"              label="Enviados"          active={statusFiltro === 'ENVIADO'} />
+        <FilterLink href="/sadam/pedidos?status=ENTREGUE"             label="Entregues"         active={statusFiltro === 'ENTREGUE'} />
+        <FilterLink href="/sadam/pedidos?status=CANCELADO"            label="Cancelados"        active={statusFiltro === 'CANCELADO'} />
       </div>
 
       {/* Tabela */}
@@ -116,7 +116,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/admin/pedidos/${p.id}`}
+                      href={`/sadam/pedidos/${p.id}`}
                       className="text-blue-600 hover:underline text-xs font-medium"
                     >
                       Ver →
@@ -137,7 +137,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
             <div className="flex gap-2">
               {paginaAtual > 1 && (
                 <Link
-                  href={`/admin/pedidos?pagina=${paginaAtual - 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
+                  href={`/sadam/pedidos?pagina=${paginaAtual - 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
                   className="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   ← Anterior
@@ -145,7 +145,7 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
               )}
               {paginaAtual < totalPaginas && (
                 <Link
-                  href={`/admin/pedidos?pagina=${paginaAtual + 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
+                  href={`/sadam/pedidos?pagina=${paginaAtual + 1}${statusFiltro ? `&status=${statusFiltro}` : ''}`}
                   className="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors"
                 >
                   Próxima →

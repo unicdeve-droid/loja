@@ -59,7 +59,7 @@ export default function AdminProdutosPage() {
       const res  = await fetch(`/api/admin/produtos/${id}/clonar`, { method: 'POST' })
       const data = await res.json()
       if (!res.ok) { alert(data.erro || 'Erro ao clonar o produto.'); return }
-      router.push(`/admin/produtos/${data.id}`)
+      router.push(`/sadam/produtos/${data.id}`)
     } catch {
       alert('Erro ao clonar o produto.')
     } finally {
@@ -83,7 +83,7 @@ export default function AdminProdutosPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
         <Link
-          href="/admin/produtos/novo"
+          href="/sadam/produtos/novo"
           className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
         >
           + Novo produto
@@ -170,7 +170,7 @@ export default function AdminProdutosPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/admin/produtos/${p.id}`}
+                        href={`/sadam/produtos/${p.id}`}
                         className="text-blue-600 hover:underline text-xs font-medium"
                       >
                         Editar
