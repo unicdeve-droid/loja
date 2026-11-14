@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import ProductCard from '@/components/loja/ProductCard'
 import CategoriaClient from './CategoriaClient'
 import OrdenacaoSelectClient from './OrdenacaoSelectClient'
+import { limparDestaque, moverDestaqueParaTopo } from '@/lib/destaque'
 
 interface PageProps {
   params: { slug: string }
@@ -14,6 +15,7 @@ interface PageProps {
     preco_min?: string
     preco_max?: string
     voltagem?:  string
+    destaque?:  string
   }
 }
 
@@ -104,7 +106,25 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
 
   const totalPaginas = Math.ceil(total / POR_PAGINA)
 
-  const produtosSerializados = produtos.map(p => ({
+  // Anúncio: ?destaque=<slug> coloca o produto clicado em 1º lugar (só na página 1)
+  let produtosLista = produtos
+  const destaqueSlug = limparDestaque(searchParams.destaque)
+  if (destaqueSlug && pagina === 1) {
+    const r = moverDestaqueParaTopo(produtos, destaqueSlug)
+    produtosLista = r.lista
+    if (!r.achou) {
+      // não está entre os 20 primeiros: busca no banco (respeitando categoria e filtros)
+      const destaque = await prisma.produto.findFirst({
+        where: { ...where, slug: { equals: destaqueSlug, mode: 'insensitive' } },
+        include: {
+          variacoes: { where: { ativo: true, tipo: 'voltagem' }, select: { valor: true } },
+        },
+      })
+      if (destaque) produtosLista = [destaque, ...produtos]
+    }
+  }
+
+  const produtosSerializados = produtosLista.map(p => ({
     id:              p.id,
     slug:            p.slug,
     nome:            p.nome,
