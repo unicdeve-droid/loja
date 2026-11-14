@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
 import ProductShelf from '@/components/loja/ProductShelf'
+import BuscaMobile from '@/components/loja/BuscaMobile'
 import { pixelTrack } from '@/lib/pixel'
 import ModalCadastroLogin from '@/components/loja/ModalCadastroLogin'
 
@@ -263,6 +264,9 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
         <span>/</span>
         <span>{produto.nome}</span>
       </nav>
+
+      {/* Busca (só celular): acima do produto */}
+      <BuscaMobile />
 
       {/* Layout principal: galeria + info */}
       <div className="produto-layout">

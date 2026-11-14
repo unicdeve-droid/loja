@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import BannerCarousel from '@/components/loja/BannerCarousel'
 import ProductShelf from '@/components/loja/ProductShelf'
+import BuscaMobile from '@/components/loja/BuscaMobile'
 import Link from 'next/link'
+import { Fragment } from 'react'
+import { getVitrinesVirtuais, LINK_DESCUBRA } from '@/lib/vitrines'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,9 +105,27 @@ export default async function HomePage() {
     categorias.map(async c => ({ cat: c, produtos: await getProdutosPorCategoria(c.id, 12) }))
   )).filter(x => x.produtos.length > 0)
 
+  // Vitrines virtuais: misturam todas as categorias e mudam a cada visita.
+  // Evita repetir o que já aparece nas outras vitrines da página.
+  const jaExibidos = new Set<string>([
+    ...populares.map(p => p.id), ...novidades.map(p => p.id), ...promocoes.map(p => p.id),
+    ...prateleiras.flatMap(x => x.produtos.map(p => p.id)),
+  ])
+  const vitrines = await getVitrinesVirtuais(12, jaExibidos)
+  const vitrineNo = (i: number) => {
+    const v = vitrines[i]
+    return v ? (
+      <ProductShelf key={`vitrine-${i}`} titulo={v.titulo} subtitulo={v.subtitulo}
+        linkVerMais={LINK_DESCUBRA} produtos={v.produtos} scrollHorizontal />
+    ) : null
+  }
+  // 1ª vitrine logo após Novidades; as demais, a cada 2 categorias; sobras no fim
+  const vitrinesUsadas = 1 + Math.floor(prateleiras.length / 2)
+
   return (
     <div>
       <BannerCarousel banners={banners} />
+      <BuscaMobile />
 
       <ProductShelf titulo="Mais Populares" subtitulo="Confira o que todo mundo está comprando"
         linkVerMais="/categoria/mais-populares" produtos={populares} scrollHorizontal />
@@ -112,11 +133,17 @@ export default async function HomePage() {
       <ProductShelf titulo="Novidades" subtitulo="Os lançamentos mais recentes"
         linkVerMais="/categoria/novidades" produtos={novidades} scrollHorizontal />
 
+      {vitrineNo(0)}
+
       {/* Uma prateleira por categoria */}
-      {prateleiras.map(({ cat, produtos }) => (
-        <ProductShelf key={cat.id} titulo={cat.nome} subtitulo={`Confira os destaques de ${cat.nome}`}
-          linkVerMais={`/categoria/${cat.slug}`} produtos={produtos} scrollHorizontal />
+      {prateleiras.map(({ cat, produtos }, i) => (
+        <Fragment key={cat.id}>
+          <ProductShelf titulo={cat.nome} subtitulo={`Confira os destaques de ${cat.nome}`}
+            linkVerMais={`/categoria/${cat.slug}`} produtos={produtos} scrollHorizontal />
+          {i % 2 === 1 && vitrineNo((i + 1) / 2)}
+        </Fragment>
       ))}
+      {vitrines.slice(vitrinesUsadas).map((_, k) => vitrineNo(vitrinesUsadas + k))}
 
       {/* Categorias dinâmicas do banco */}
       {categorias.length > 0 && (

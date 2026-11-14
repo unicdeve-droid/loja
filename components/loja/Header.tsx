@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useCarrinho } from '@/contexts/CarrinhoContext'
 import ModalCadastroLogin from '@/components/loja/ModalCadastroLogin'
@@ -10,9 +10,9 @@ import NatalLuzes from '@/components/loja/NatalLuzes'
 
 interface Categoria { id: string; nome: string; slug: string }
 
-function StoreLogo({ logoUrl, siteNome }: { logoUrl?: string; siteNome?: string }) {
+function StoreLogo({ logoUrl, siteNome, altura = 40 }: { logoUrl?: string; siteNome?: string; altura?: number }) {
   if (logoUrl) {
-    return <img src={logoUrl} alt={siteNome || 'Logo'} style={{ height: 40, width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 1px 2px rgba(60,40,0,0.35))' }} />
+    return <img src={logoUrl} alt={siteNome || 'Logo'} style={{ height: altura, width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 1px 2px rgba(60,40,0,0.35))' }} />
   }
   return (
     <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1f3b5c', letterSpacing: '-0.5px', lineHeight: 1 }}>
@@ -23,6 +23,9 @@ function StoreLogo({ logoUrl, siteNome }: { logoUrl?: string; siteNome?: string 
 
 export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNome?: string }) {
   const router = useRouter()
+  const pathname = usePathname() ?? ''
+  // No celular, na home e na página do produto a busca sai do header (fica abaixo dos banners / acima do produto)
+  const semBuscaMobile = pathname === '/' || pathname.startsWith('/produto/')
   const { data: session } = useSession()
   const { totalItens } = useCarrinho()
   const [modalAuth, setModalAuth] = useState(false)
@@ -88,7 +91,8 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
 
           {/* MOBILE */}
           <div className="md:hidden w-full flex flex-col gap-2">
-            <div className="flex items-center w-full gap-3">
+            <div className="flex items-center w-full">
+              <div className="flex-1 flex items-center">
               <button aria-label="Menu" onClick={() => setSidebarOpen(true)} className="text-white p-1 flex-shrink-0">
                 <svg width="24" height="18" fill="none" viewBox="0 0 25 18">
                   <path d="M1 9H23.2" stroke="currentColor" strokeLinecap="round" strokeWidth="2"/>
@@ -96,11 +100,11 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
                   <path d="M1 16.4H23.2" stroke="currentColor" strokeLinecap="round" strokeWidth="2"/>
                 </svg>
               </button>
+              </div>
               <Link href="/" className="flex-shrink-0">
-                <StoreLogo logoUrl={logoUrl} siteNome={siteNome} />
+                <StoreLogo logoUrl={logoUrl} siteNome={siteNome} altura={52} />
               </Link>
-              <div className="flex-1" />
-              <div className="flex items-center gap-3">
+              <div className="flex-1 flex items-center justify-end gap-3">
                 {/* Perfil mobile */}
                 {session ? (
                   <span className="text-white" style={{ cursor: 'default' }}>
@@ -130,6 +134,7 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
                 </Link>
               </div>
             </div>
+            {!semBuscaMobile && (
             <form onSubmit={handleBusca} className="search-bar">
               <input type="text" placeholder="O que você procura?" value={busca} onChange={e => setBusca(e.target.value)} />
               <button type="submit" className="search-btn-orange">
@@ -139,6 +144,7 @@ export default function Header({ logoUrl, siteNome }: { logoUrl?: string; siteNo
                 </svg>
               </button>
             </form>
+            )}
           </div>
 
           {/* DESKTOP */}

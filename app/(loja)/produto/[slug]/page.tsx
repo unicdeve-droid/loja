@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import type { Metadata } from 'next'
 import ProdutoClient from './ProdutoClient'
+import { getRelacionadosAleatorios } from '@/lib/vitrines'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,15 +41,8 @@ export default async function ProdutoPage({ params }: Props) {
 
   if (!produto) notFound()
 
-  const relacionados = await prisma.produto.findMany({
-    where: {
-      categoriaId: produto.categoriaId,
-      slug: { not: produto.slug },
-      ativo: true,
-    },
-    take: 8,
-    orderBy: { totalAvaliacoes: 'desc' },
-  })
+  // Relacionados: aleatórios a cada visita (antes eram sempre os mesmos)
+  const relacionados = await getRelacionadosAleatorios(produto.id, 8)
 
   return <ProdutoClient produto={produto as any} relacionados={relacionados as any} />
 }

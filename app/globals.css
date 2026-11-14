@@ -3659,3 +3659,50 @@ body {
   .tab-btn{ flex:0 0 auto; padding:.625rem .75rem; }
 }
 /* <<< avaliacoes-layout <<< */
+
+/* >>> busca-verde-rolex-e-header-mobile >>> */
+/* Botão da busca: de laranja para verde Rolex */
+.search-btn-orange,
+.search-bar button[type="submit"],
+.gazin-header .search-btn-orange,
+.gazin-header .search-bar button[type="submit"]{
+  background:linear-gradient(135deg,#0b7a4c 0%,#006039 55%,#004a2c 100%) !important;
+}
+.search-btn-orange:hover,
+.search-bar button[type="submit"]:hover,
+.gazin-header .search-btn-orange:hover,
+.gazin-header .search-bar button[type="submit"]:hover{
+  background:linear-gradient(135deg,#006039 0%,#00492b 55%,#003a22 100%) !important;
+}
+
+/* Barra de busca fora do header (só celular): home e página do produto */
+.busca-mobile{ display:none; }
+.busca-mobile .search-bar{
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(120,96,74,.18);
+  border-radius:14px !important;
+  overflow:hidden;
+  box-shadow:0 6px 18px rgba(120,96,74,.12), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.busca-mobile .search-bar input{ background:transparent !important; color:#2a2d3e !important; }
+.busca-mobile .search-bar input::placeholder{ color:#8a8c9c !important; }
+@media (max-width:768px){
+  .busca-mobile{ display:block; padding:.75rem 1rem .25rem; }
+  .container .busca-mobile{ padding-left:0; padding-right:0; }
+}
+
+/* Header no celular: mais baixo (logo grande e centralizado) */
+@media (max-width:768px){
+  .gazin-header{ padding:.5rem 1rem; }
+}
+@media (min-width:521px) and (max-width:768px){
+  .gazin-header{ padding-top:.875rem; }
+}
+/* O pisca-pisca do celular fica acima da linha do logo e é recortado no limite do header */
+.natal-mobile-wrap{ display:none; }
+@media (max-width:520px){
+  .natal-mobile-wrap{ display:block; position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:2; }
+  .natal-mobile-wrap .natal-mobile{ position:static; display:block; width:100%; height:auto; overflow:visible; }
+  .gazin-header:has(.natal-mobile-wrap){ padding-top:1.25rem; }
+}
+/* <<< busca-verde-rolex-e-header-mobile <<< */

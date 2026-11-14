@@ -100,7 +100,8 @@ export default function NatalLuzes() {
       </div>
 
       {/* Celular */}
-      <svg className="natal-mobile" viewBox="0 0 400 120" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+      <div className="natal-mobile-wrap" aria-hidden="true">
+      <svg className="natal-mobile" viewBox="0 0 400 120" preserveAspectRatio="xMidYMin meet">
         {/* fios */}
         <g fill="none" stroke="#3f7a43" strokeWidth="1.3" strokeLinecap="round" opacity="0.9">
           {ARCOS.map(([a, b, c], i) => (
@@ -134,6 +135,7 @@ export default function NatalLuzes() {
         <Brilho x={128} y={27} d={0} />
         <Brilho x={272} y={27} d={0.7} />
       </svg>
+      </div>
     </>
   )
 }
