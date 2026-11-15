@@ -3688,7 +3688,8 @@ body {
 .busca-mobile .search-bar input::placeholder{ color:#8a8c9c !important; }
 @media (max-width:768px){
   .busca-mobile{ display:block; padding:.75rem 1rem .25rem; }
-  .container .busca-mobile{ padding-left:0; padding-right:0; }
+  /* página do produto: a barra sobe 12px; o espaço total (breadcrumb → foto) não muda */
+  .container .busca-mobile{ padding:0 0 1rem; }
 }
 
 /* Header no celular: mais baixo (logo grande e centralizado) */
@@ -3706,3 +3707,27 @@ body {
   .gazin-header:has(.natal-mobile-wrap){ padding-top:1.25rem; }
 }
 /* <<< busca-verde-rolex-e-header-mobile <<< */
+
+/* >>> faixa-aviso >>> */
+.faixa-aviso{
+  background:linear-gradient(90deg,#004a2c 0%,#006039 50%,#004a2c 100%);
+  color:#f3e3b5;
+  overflow:hidden;
+  white-space:nowrap;
+  height:1.875rem;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.faixa-aviso-trilho{
+  display:flex;
+  width:max-content;
+  animation:faixa-rolar var(--faixa-duracao,80s) linear infinite;
+  will-change:transform;
+}
+.faixa-aviso-grupo{ display:flex; flex-shrink:0; }
+.faixa-aviso-item{ padding:0 .5rem 0 1.25rem; font-size:.75rem; font-weight:600; letter-spacing:.04em; line-height:1; }
+.faixa-aviso-sep{ color:#d9b45a; margin-left:.75rem; }
+@keyframes faixa-rolar{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+@media (prefers-reduced-motion:reduce){ .faixa-aviso-trilho{ animation:none; } }
+/* <<< faixa-aviso <<< */

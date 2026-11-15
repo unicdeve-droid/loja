@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import BannerCarousel from '@/components/loja/BannerCarousel'
 import ProductShelf from '@/components/loja/ProductShelf'
 import BuscaMobile from '@/components/loja/BuscaMobile'
+import FaixaAviso from '@/components/loja/FaixaAviso'
 import Link from 'next/link'
 import { Fragment } from 'react'
 import { getVitrinesVirtuais, LINK_DESCUBRA } from '@/lib/vitrines'
@@ -124,6 +125,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      <FaixaAviso />
       <BannerCarousel banners={banners} />
       <BuscaMobile />
 
