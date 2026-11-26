@@ -443,12 +443,6 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
                 </div>
               )}
 
-              {/* Box vendedor */}
-              <div className="produto-vendedor">
-                <div>Vendido por <strong>Gazin</strong></div>
-                <div>Entregue por <strong>Gazin</strong></div>
-              </div>
-
               {/* Preço, quantidade e botões */}
               {blocoCompra}
 
