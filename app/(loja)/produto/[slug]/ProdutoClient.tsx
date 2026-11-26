@@ -224,10 +224,6 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
 
       {/* Quantidade (não se aplica a produto digital) */}
       {!ehDigital && (<>
-      <div className="produto-quantidade">
-        <span className="variante-label">Quantidade: <strong>1</strong></span>
-        <span style={{ fontSize: '0.75rem', color: '#a0a4b3' }}>(Últimas unidades)</span>
-      </div>
       <div className="qty-control" style={{ marginBottom: '1rem' }}>
         <button onClick={() => setQuantidade(q => Math.max(1, q - 1))}>−</button>
         <span>{quantidade}</span>
@@ -370,22 +366,6 @@ export default function ProdutoClient({ produto, relacionados }: { produto: Prod
           {/* ═════════ PRODUTO FÍSICO (layout original) ═════════ */}
           {!ehDigital && (
             <>
-              {/* Descrição curta */}
-              {descricaoCurta && (
-                <p className="produto-descricao-curta">{descricaoCurta}</p>
-              )}
-
-              {/* Link mais informações */}
-              <button
-                className="produto-mais-info"
-                onClick={() => {
-                  setTabAtiva('descricao')
-                  setTimeout(() => document.querySelector('.tabs')?.scrollIntoView({ behavior: 'smooth' }), 50)
-                }}
-              >
-                Mais informações
-              </button>
-
               {/* Variante: Cor */}
               {produto.temCor && coresDisponiveis.length > 0 && (
                 <div className="produto-variantes">
