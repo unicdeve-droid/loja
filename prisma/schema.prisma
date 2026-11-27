@@ -179,3 +179,22 @@ model ItemPedido {
   entregaEmail      String?
   entregaWhatsapp   String?
 }
+
+// Captura de leads do checkout (pessoas que preencheram os dados mas podem
+// não ter concluído a compra) — usado para remarketing no painel admin.
+model Lead {
+  id          String   @id @default(cuid())
+  nome        String?
+  email       String?
+  whatsapp    String?
+  cep         String?
+  rua         String?
+  numero      String?
+  bairro      String?
+  cidade      String?
+  estado      String?
+  valor       Float?   // subtotal do carrinho no momento
+  itensResumo String?  @db.Text // resumo dos produtos no carrinho
+  origem      String   @default("checkout")
+  createdAt   DateTime @default(now())
+}

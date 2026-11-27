@@ -85,6 +85,32 @@ export default function CheckoutPage() {
     if (itens.length === 0 && step !== 'confirmado') router.push('/')
   }, [itens, step, router])
 
+  // Captura de lead (grava os dados preenchidos no admin, uma vez por checkout)
+  const leadRegistrado = useRef(false)
+  function registrarLead() {
+    if (leadRegistrado.current) return
+    leadRegistrado.current = true
+    try {
+      const itensResumo = itens
+        .map(i => `${i.quantidade}x ${i.nome}`)
+        .join(' | ')
+        .slice(0, 300)
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: nomeGuest || null,
+          email: emailGuest || null,
+          whatsapp: whatsappGuest || null,
+          cep, rua, numero, bairro, cidade, estado,
+          valor: Number(subtotal.toFixed(2)),
+          itensResumo,
+          origem: 'checkout',
+        }),
+      }).catch(() => {})
+    } catch {}
+  }
+
   // Pixel: InitiateCheckout (uma vez por visita ao checkout)
   const iniciouCheckout = useRef(false)
   useEffect(() => {
@@ -153,6 +179,7 @@ export default function CheckoutPage() {
           setFrete(cep.replace(/\D/g,''), op0.opcao, op0.valor)
         }
         setFreteBuscado(true)
+        registrarLead()
       } catch { setErro('Erro ao calcular frete.') }
       return
     }
@@ -430,11 +457,6 @@ export default function CheckoutPage() {
                           <div>
                             <label className="block text-xs font-medium text-gray-600 mb-1">Número *</label>
                             <input required value={numero} onChange={e => setNumero(e.target.value)} placeholder="123"
-                              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label>
-                            <input value={complemento} onChange={e => setComplemento(e.target.value)} placeholder="Apto"
                               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                           </div>
                           <div>
